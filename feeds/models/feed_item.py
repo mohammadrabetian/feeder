@@ -21,7 +21,7 @@ class FeedItemManager(models.Manager):
         )
         kwargs["comments_url"] = entry.get("comments")
         kwargs["date_modified"] = convert_time(
-            entry.get("updated_parsed") or entry.get("published_parsed", timezone.now())
+            entry.get("published_parsed") or entry.get("updated_parsed", timezone.now())
         )
 
         if self.filter(feed=feed, guid=entry.guid).exists():
