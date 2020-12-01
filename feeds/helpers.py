@@ -26,6 +26,8 @@ def request_feed(feed_url: str) -> FeedParserDict:
 
     Raises:
         NotValidFeedUrl
+        ReadTimeout
+        ConnectionError
 
     Returns:
         FeedParserDict: A feedparser dict containing feed and feed items.
@@ -33,8 +35,11 @@ def request_feed(feed_url: str) -> FeedParserDict:
     try:
         resp = requests.get(feed_url, timeout=5)
     except requests.ReadTimeout:
-        logger.warn("Timeout when reading RSS %s", feed_url)
-        return
+        logger.warning("Timeout when reading RSS %s", feed_url)
+        raise requests.ReadTimeout(f"Read Timeout error for {feed_url}")
+    except requests.ConnectionError:
+        logger.warning("Not known service %s", feed_url)
+        raise requests.ConnectionError(f"{feed_url} is not known")
 
     content = BytesIO(resp.content)
     document = feedparser.parse(content)
