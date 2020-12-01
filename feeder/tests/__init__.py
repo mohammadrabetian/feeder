@@ -1,0 +1,1 @@
+from .main_fixtures import graphql_request, set_celery_eager_false
