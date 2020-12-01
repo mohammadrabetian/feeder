@@ -24,29 +24,40 @@ class BaseTask(Task):
         Task on_retry: Will update cache with <<RETRYING-REASON>> value.
     """
 
+    key = "{0}_update_state_{1}"
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE-%s"
+    RETRYING = "RETRYING-%s"
+
     def on_success(self, retval, task_id, args, kwargs) -> None:
         feed_model = apps.get_model("feeds", "Feed")
         logger.info("success on %s, writing state to cache", task_id)
         feed = feed_model.objects.get(id=kwargs.get("feed_id"))
-        key = f"{feed.uuid}_update_state_{feed.user_id}"
-        value = "SUCCESS"
-        cache.set(key=key, value=value, timeout=30)
+        cache.set(
+            key=self.key.format(feed.uuid.hex, feed.user_id),
+            value=self.SUCCESS,
+            timeout=30,
+        )
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         feed_model = apps.get_model("feeds", "Feed")
         logger.info("failure on %s, writing state to cache", task_id)
         feed = feed_model.objects.get(id=kwargs.get("feed_id"))
-        key = f"{feed.uuid}_update_state_{feed.user_id}"
-        value = f"FAILURE-{exc}"
-        cache.set(key=key, value=value, timeout=30)
+        cache.set(
+            key=self.key.format(feed.uuid.hex, feed.user_id),
+            value=self.FAILURE.format(exc),
+            timeout=30,
+        )
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         feed_model = apps.get_model("feeds", "Feed")
         logger.info("retrying on %s, writing state to cache", task_id)
         feed = feed_model.objects.get(id=kwargs.get("feed_id"))
-        key = f"{feed.uuid}_update_state_{feed.user_id}"
-        value = f"RETRYING-{exc}"
-        cache.set(key=key, value=value, timeout=30)
+        cache.set(
+            key=self.key.format(feed.uuid.hex, feed.user_id),
+            value=self.RETRYING.format(exc),
+            timeout=30,
+        )
 
 
 @shared_task(

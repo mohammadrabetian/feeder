@@ -55,7 +55,7 @@ class FeedItemType(DjangoObjectType):
 class FeedItemFilter(django_filters.FilterSet):
     feed = django_filters.ModelChoiceFilter(queryset=Feed.objects.all())
     read = django_filters.BooleanFilter(field_name="read")
-    order_by = django_filters.OrderingFilter(fields=("date_modified", "dateModified"))
+    order_by = django_filters.OrderingFilter(fields=("feed__last_updated"))
 
     class Meta:
         model = FeedItem
@@ -108,7 +108,7 @@ class FeedUpdateStateQuery:
     update_state = graphene.String(uuid=graphene.UUID(required=True))
 
     def resolve_update_state(self, info, uuid):
-        key = f"{uuid}_update_state_{info.context.user.id}"
+        key = f"{uuid.hex}_update_state_{info.context.user.id}"
         result = cache.get(key)
         if result:
             return result
