@@ -16,7 +16,7 @@ class FollowingFeedManager(models.Manager):
             raise FollowingFeedExist(_(f"You are already following this feed"))
         try:
             feed = Feed.objects.get(uuid=feed_uuid)
-            self.create(user=user, feed=feed)
+            return self.create(user=user, feed=feed)
         except Feed.DoesNotExist:
             raise NoSuchFeedExist(_(f"There is no feed with {feed_uuid} id!"))
 
