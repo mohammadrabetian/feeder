@@ -90,7 +90,7 @@ query Feeds {
 ### orders by feed lastUpdated
 ### Supports pagination
 
-query Feeds {
+query FeedsWithFilters {
   feeds(orderBy: "-lastUpdated" first: 2) {
     edges {
       node {
