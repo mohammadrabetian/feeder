@@ -11,6 +11,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 from .exceptions import NoSuchFeedItemExist
+from .helpers import validate_uuid4
 from .models import Feed, FeedItem, FollowingFeed, ReadItem
 
 logger = logging.getLogger(__name__)
@@ -53,9 +54,25 @@ class FeedItemType(DjangoObjectType):
 
 
 class FeedItemFilter(django_filters.FilterSet):
-    feed = django_filters.ModelChoiceFilter(queryset=Feed.objects.all())
-    read_item = django_filters.ModelChoiceFilter(queryset=ReadItem.objects.all())
-    order_by = django_filters.OrderingFilter(fields=("feed__last_updated"))
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get("request").user
+        super().__init__(*args, **kwargs)
+
+    feed = django_filters.CharFilter(method="feed_filter")
+    read = django_filters.BooleanFilter(method="read_filter")
+    order_by = django_filters.OrderingFilter(
+        fields=(("feed__last_updated", "lastUpdated"),)
+    )
+
+    def read_filter(self, queryset, value, *args, **kwargs):
+        if value and True in args:
+            return queryset.filter(reads__user=self.user)
+        return queryset
+
+    def feed_filter(self, queryset, value, *args, **kwargs):
+        if value and validate_uuid4(args[0]):
+            return queryset.filter(feed__uuid=args[0])
+        return queryset
 
     class Meta:
         model = FeedItem
@@ -63,30 +80,28 @@ class FeedItemFilter(django_filters.FilterSet):
 
     @property
     def qs(self):
-        feed_items = FeedItem.objects.filter(
+        parent = super().qs
+        return parent.filter(
             Q(feed__user=self.request.user)
             | Q(feed__followers__user=self.request.user),
         ).select_related("feed")
-        return feed_items
 
 
 class FeedFilter(django_filters.FilterSet):
-    order_by = django_filters.OrderingFilter(fields=("last_updated", "lastUpdated"))
+    order_by = django_filters.OrderingFilter(fields=(("last_updated", "lastUpdated"),))
 
     class Meta:
         model = Feed
-        fields = ["user", "title"]
+        fields = ["title"]
 
     @property
     def qs(self):
-        feeds = (
-            Feed.objects.filter(
-                Q(user=self.request.user) | Q(followers__user=self.request.user),
-                is_active=True,
-            ).select_related("user")
-            # .distinct("url") TODO: REMEMBER
-        )
-        return feeds
+        parent = super().qs
+        return parent.filter(
+            Q(user=self.request.user) | Q(followers__user=self.request.user),
+            is_active=True,
+        ).select_related("user")
+        # .distinct() TODO: REMEMBER
 
 
 class FeedQuery:
