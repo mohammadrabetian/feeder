@@ -11,6 +11,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 from .exceptions import NoSuchFeedItemExist
+from .helpers import validate_uuid4
 from .models import Feed, FeedItem, FollowingFeed, ReadItem
 
 logger = logging.getLogger(__name__)
@@ -53,15 +54,24 @@ class FeedItemType(DjangoObjectType):
 
 
 class FeedItemFilter(django_filters.FilterSet):
-    feed = django_filters.ModelChoiceFilter(queryset=Feed.objects.all())
-    read = django_filters.BooleanFilter(method="read_items")
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get("request").user
+        super().__init__(*args, **kwargs)
+
+    feed = django_filters.CharFilter(method="feed_filter")
+    read = django_filters.BooleanFilter(method="read_filter")
     order_by = django_filters.OrderingFilter(
         fields=(("feed__last_updated", "lastUpdated"),)
     )
 
-    def read_items(self, queryset, value, *args, **kwargs):
+    def read_filter(self, queryset, value, *args, **kwargs):
         if value and True in args:
-            return queryset.filter(reads__isnull=False)
+            return queryset.filter(reads__user=self.user)
+        return queryset
+
+    def feed_filter(self, queryset, value, *args, **kwargs):
+        if value and validate_uuid4(args[0]):
+            return queryset.filter(feed__uuid=args[0])
         return queryset
 
     class Meta:

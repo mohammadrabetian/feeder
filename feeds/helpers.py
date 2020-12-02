@@ -3,6 +3,7 @@ from datetime import datetime
 from io import BytesIO
 from time import mktime, struct_time
 from typing import Union
+from uuid import UUID
 
 import feedparser
 import requests
@@ -87,3 +88,23 @@ def validate_url(url: str) -> str:
         return url
     except ValidationError:
         raise ValidationError(_("Please enter a valid url"))
+
+
+def validate_uuid4(uuid_string: str) -> bool:
+    """A simple helper to check uuid validation in
+    custom filters through apis.
+
+    Args:
+        uuid_string ([str])
+
+    Returns:
+        [bool]
+    """
+    try:
+        UUID(uuid_string, version=4)
+    except ValueError:
+        # If it's a value error, then the string
+        # is not a valid hex code for a UUID.
+        return False
+
+    return True
