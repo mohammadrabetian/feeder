@@ -1,0 +1,67 @@
+version: "3.7"
+
+services:
+  web:
+    image: docker.feeder.net/web-dev
+    build:
+      context: .
+      dockerfile: docker/django.Dockerfile
+    container_name: web
+    volumes:
+      - .:/usr/src/feeder/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./config/.env
+    depends_on:
+      - db
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3.8.4-alpine
+    env_file: ./config/.env
+    ports:
+      - 5672:5672
+    container_name: rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/data/
+
+  worker:
+    # image: docker.feeder.net/web-dev
+    build: 
+      context: .
+      dockerfile: docker/django.Dockerfile
+    container_name: worker
+    hostname: worker
+    entrypoint: celery -A feeder worker -P gevent -l info
+    env_file: ./config/.env
+    volumes:
+      - .:/usr/src/feeder/
+    links:
+      - rabbitmq
+      - db
+    depends_on:
+      - rabbitmq
+  
+  redis:
+    image: redis:5.0.9-alpine
+    ports:
+      - 6379:6379
+    container_name: redis
+    volumes:
+      - redis_data:/var/lib/redis/data/
+    entrypoint: redis-server 
+    restart: always
+
+  db:
+    image: "postgres:9.6.9-alpine"
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: ./config/.env
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  worker_data:
+  redis_data:

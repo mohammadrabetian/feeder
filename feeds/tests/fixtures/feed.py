@@ -10,8 +10,5 @@ class FeedFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     url = factory.Faker(
         "random_element",
-        elements=[
-            "http://www.nu.nl/rss/Algemeen",
-            "https://feeds.feedburner.com/tweakers/mixed",
-        ],
+        elements=["http://www.nu.nl/rss/Algemeen"],
     )
