@@ -65,9 +65,6 @@ mutation DeleteFeed {
 }
 ```
 #### Query Feeds
-* Supports filters
-* orders by feed lastUpdated
-* Supports pagination
 ```graphql
 query Feeds {
   feeds {
@@ -88,11 +85,32 @@ query Feeds {
     }
   }
 }
+
+### Supports filters (title)
+### orders by feed lastUpdated
+### Supports pagination
+
+query Feeds {
+  feeds(orderBy: "-lastUpdated" first: 2) {
+    edges {
+      node {
+        uuid
+        user{
+          username
+        }
+        title
+        subtitle
+        rights
+        url
+        lastUpdated
+        info
+        language
+      }
+    }
+  }
+}
 ```
 #### Query Feed Items
-* Supports filters
-* orders by feed lastUpdated
-* Supports pagination
 ```graphql
 query FeedItems {
   feedItems {
@@ -106,6 +124,28 @@ query FeedItems {
           uuid
           url
           title
+        }
+      }
+    }
+  }
+}
+
+### Supports filters (read, feed)
+### orders by feed lastUpdated
+### Supports pagination
+query FeedItemsWithFilters {
+  feedItems(orderBy: "-lastUpdated" first: 10 read: true feed: "e825c014-0bc1-4258-9a44-7980eb65ed7e") {
+    edges {
+      node {
+        uuid
+        title
+        dateModified
+        content
+        feed {
+          uuid
+          url
+          title
+          lastUpdated
         }
       }
     }
