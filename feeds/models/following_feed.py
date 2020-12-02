@@ -1,3 +1,4 @@
+from typing import Dict, Tuple
 from uuid import UUID
 
 from django.contrib.auth import get_user_model
@@ -11,7 +12,7 @@ User = get_user_model()
 
 
 class FollowingFeedManager(models.Manager):
-    def follow(self, user: User, feed_uuid: UUID):
+    def follow(self, user: User, feed_uuid: UUID) -> "FollowingFeed":
         if self.filter(user=user, feed__uuid=feed_uuid).exists():
             raise FollowingFeedExist(_(f"You are already following this feed"))
         try:
@@ -20,12 +21,12 @@ class FollowingFeedManager(models.Manager):
         except Feed.DoesNotExist:
             raise NoSuchFeedExist(_(f"There is no feed with {feed_uuid} id!"))
 
-    def unfollow(self, user: User, feed_uuid: UUID):
+    def unfollow(self, user: User, feed_uuid: UUID) -> Tuple[int, Dict[str, int]]:
         if not self.filter(user=user, feed__uuid=feed_uuid).exists():
             raise NotFollowingFeed(
                 _(f"You are not following the feed with {feed_uuid} id!")
             )
-        self.get(user=user, feed__uuid=feed_uuid).delete()
+        return self.get(user=user, feed__uuid=feed_uuid).delete()
 
 
 class FollowingFeed(models.Model):
