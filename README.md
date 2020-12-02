@@ -34,6 +34,11 @@ docker-compose exec web ./manage.py shell_plus
 
 This project is using `GraphQL` for the Apis. [Click here](graphql.md) to see what queries you can run.
 
+## Tests
+
+Run tests with pytest
+```bash
+docker-compose exec web pytest
 
 ## Built With
 
