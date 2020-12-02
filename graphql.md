@@ -130,3 +130,21 @@ mutation UnReadItem {
   }
 }
 ```
+
+#### Follow a feed
+```graphql
+mutation FollowFeed {
+  followFeed(uuid: "e825c014-0bc1-4258-9a44-7980eb65ed7e") {
+    success
+  }
+}
+```
+
+#### Unfollow a feed
+```graphql
+mutation UnFollowFeed {
+  unfollowFeed(uuid: "e825c014-0bc1-4258-9a44-7980eb65ed7e") {
+    success
+  }
+}
+```
