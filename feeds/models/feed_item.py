@@ -1,3 +1,4 @@
+from contextlib import suppress
 from typing import Union
 from uuid import uuid4
 
@@ -7,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from feedparser import FeedParserDict
 from feeds.helpers import convert_time
 from feeds.models import Feed
+from feeds.models.read_item import ReadItem
 
 
 class FeedItemManager(models.Manager):
@@ -50,8 +52,6 @@ class FeedItem(models.Model):
         _("Date modified"), null=True, blank=True, db_index=True
     )
     created_at = models.DateTimeField(_("Date created"), auto_now_add=True)
-    # used to check an item as read/unread
-    read = models.BooleanField(default=False)
     objects = FeedItemManager()
 
     class Meta:
@@ -68,12 +68,11 @@ class FeedItem(models.Model):
     def __str__(self) -> str:
         return f"{self.title} [{self.feed.title}]"
 
-    def mark_as_read(self) -> None:
-        if not self.read:
-            self.read = True
-            self.save(update_fields=["read"])
+    def mark_as_read(self, user) -> None:
+        if not ReadItem.objects.filter(feed_item=self, user=user).exists():
+            ReadItem.objects.create(feed_item=self, user=user)
 
-    def mark_as_unread(self) -> None:
-        if self.read:
-            self.read = False
-            self.save(update_fields=["read"])
+    def mark_as_unread(self, user) -> None:
+        with suppress(ReadItem.DoesNotExist):
+            read_item = ReadItem.objects.get(feed_item=self, user=user)
+            read_item.delete()

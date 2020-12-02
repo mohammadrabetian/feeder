@@ -11,7 +11,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 from .exceptions import NoSuchFeedItemExist
-from .models import Feed, FeedItem, FollowingFeed
+from .models import Feed, FeedItem, FollowingFeed, ReadItem
 
 logger = logging.getLogger(__name__)
 
@@ -54,12 +54,12 @@ class FeedItemType(DjangoObjectType):
 
 class FeedItemFilter(django_filters.FilterSet):
     feed = django_filters.ModelChoiceFilter(queryset=Feed.objects.all())
-    read = django_filters.BooleanFilter(field_name="read")
+    read_item = django_filters.ModelChoiceFilter(queryset=ReadItem.objects.all())
     order_by = django_filters.OrderingFilter(fields=("feed__last_updated"))
 
     class Meta:
         model = FeedItem
-        fields = ["feed", "read"]
+        fields = ["feed"]
 
     @property
     def qs(self):
@@ -179,7 +179,7 @@ class ReadFeedItem(graphene.Mutation):
     def mutate(self, info, uuid):
         try:
             feed_item = FeedItem.objects.get(uuid=uuid)
-            feed_item.mark_as_read()
+            feed_item.mark_as_read(user=info.context.user)
             return ReadFeedItem(success=True)
         except FeedItem.DoesNotExist:
             raise NoSuchFeedItemExist(_(f"There is no feed item with {uuid} id!"))
@@ -194,7 +194,7 @@ class UnReadFeedItem(graphene.Mutation):
     def mutate(self, info, uuid):
         try:
             feed_item = FeedItem.objects.get(uuid=uuid)
-            feed_item.mark_as_unread()
+            feed_item.mark_as_unread(user=info.context.user)
             return ReadFeedItem(success=True)
         except FeedItem.DoesNotExist:
             raise NoSuchFeedItemExist(_(f"There is no feed item with {uuid} id!"))

@@ -3,6 +3,7 @@ from hashlib import md5
 import pytest
 from feedparser import FeedParserDict
 from feeds.models import FeedItem
+from feeds.models.read_item import ReadItem
 
 
 class FeedItemManagerTestCase:
@@ -23,18 +24,13 @@ class FeedItemManagerTestCase:
 class FeedItemModelTestCase:
     @staticmethod
     @pytest.mark.django_db
-    def test_mark_as_read(feed_item):
-        assert not feed_item.read
-        feed_item.mark_as_read()
-        feed_item.refresh_from_db()
-        assert feed_item.read
+    def test_mark_as_read(feed_item, user):
+        feed_item.mark_as_read(user=user)
+        assert ReadItem.objects.count()
 
     @staticmethod
     @pytest.mark.django_db
-    def test_mark_as_unread(feed_item):
-        feed_item.mark_as_read()
-        feed_item.refresh_from_db()
-        assert feed_item.read
-        feed_item.mark_as_unread()
-        feed_item.refresh_from_db()
-        assert not feed_item.read
+    def test_mark_as_unread(feed_item, user):
+        feed_item.mark_as_read(user=user)
+        feed_item.mark_as_unread(user=user)
+        assert not ReadItem.objects.count()

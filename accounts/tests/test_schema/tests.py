@@ -1,7 +1,7 @@
 import pytest
 from faker import Faker
 
-from ..queries import logout_user, register_user
+from .queries import logout_user, register_user
 
 fake = Faker()
 
