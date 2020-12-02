@@ -28,6 +28,6 @@ class FollowingFeedManagerTestCase:
         with pytest.raises(NotFollowingFeed):
             FollowingFeed.objects.unfollow(user=user, feed_uuid=feed.uuid)
 
-        following_feed = FollowingFeed.objects.follow(user=user, feed_uuid=feed.uuid)
-        result = FollowingFeed.objects.unfollow(user, feed_uuid=feed.uuid)
-        assert result[1]["feeds.FollowingFeed"] == following_feed.id
+        FollowingFeed.objects.follow(user=user, feed_uuid=feed.uuid)
+        FollowingFeed.objects.unfollow(user, feed_uuid=feed.uuid)
+        assert not FollowingFeed.objects.all().count()

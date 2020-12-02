@@ -74,13 +74,6 @@ WSGI_APPLICATION = "feeder.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
-
 
 CACHES = {
     "default": {
@@ -121,7 +114,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -130,8 +123,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 
-# CELERY_BROKER_URL = "redis://localhost:6379"
-# CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_MAX_RETRIES = 4
 
 CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672//"
 CELERY_BACKEND_URL = "amqp://guest:guest@rabbitmq:5672//"
