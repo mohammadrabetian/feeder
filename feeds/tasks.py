@@ -4,6 +4,7 @@ from hashlib import md5
 from celery import Task, shared_task
 from celery.result import AsyncResult
 from django.apps import apps
+from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
@@ -26,8 +27,8 @@ class BaseTask(Task):
 
     key = "{0}_update_state_{1}"
     SUCCESS = "SUCCESS"
-    FAILURE = "FAILURE-%s"
-    RETRYING = "RETRYING-%s"
+    FAILURE = "FAILURE-{}"
+    RETRYING = "RETRYING-{}"
 
     def on_success(self, retval, task_id, args, kwargs) -> None:
         feed_model = apps.get_model("feeds", "Feed")
@@ -62,7 +63,7 @@ class BaseTask(Task):
 
 @shared_task(
     autoretry_for=(Exception,),
-    retry_kwargs={"max_retries": 4, "countdown": 10},
+    retry_kwargs={"max_retries": settings.CELERY_MAX_RETRIES, "countdown": 10},
     base=BaseTask,
 )
 def feed_updater(feed_id: int) -> AsyncResult:

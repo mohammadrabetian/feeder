@@ -9,7 +9,7 @@ from feeds.tasks import feed_updater
 @pytest.mark.django_db
 @mock.patch("feeds.helpers.request_feed")
 @mock.patch("feeds.tasks.BaseTask.on_success")
-@mock.patch("django.core.cache.cache")
+@mock.patch("django.core.cache.cache.set")
 def test_success(mocked_cache, mocked_on_success, request_feed, feed):
     feed_updater(feed.id)
     assert request_feed.called_once_with(feed.url)
@@ -29,7 +29,7 @@ def test_success(mocked_cache, mocked_on_success, request_feed, feed):
 @mock.patch("feeds.tasks.request_feed")
 @mock.patch("feeds.tasks.BaseTask.on_failure")
 @mock.patch("feeds.tasks.BaseTask.on_retry")
-@mock.patch("django.core.cache.cache")
+@mock.patch("django.core.cache.cache.set")
 def test_failure(
     mocked_cache,
     mocked_on_retry,
