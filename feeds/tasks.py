@@ -49,6 +49,7 @@ class BaseTask(Task):
             value=self.FAILURE.format(exc),
             timeout=30,
         )
+        feed.delete()
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         feed_model = apps.get_model("feeds", "Feed")
