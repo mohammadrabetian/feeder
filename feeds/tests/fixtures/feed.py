@@ -12,6 +12,6 @@ class FeedFactory(factory.django.DjangoModelFactory):
         "random_element",
         elements=[
             "http://www.nu.nl/rss/Algemeen",
-            "https://feeds.feedburner.com/tweakers/mixed",
+            "http://joeroganexp.joerogan.libsynpro.com/rss",
         ],
     )

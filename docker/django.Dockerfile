@@ -9,14 +9,6 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED 1
 
-# System deps:
-# RUN apk update \
-#     && apk upgrade \
-#     && apk add --no-cache \
-#     postgresql-dev \
-#     musl-dev \
-#     gcc
-
 # Make directory & install dependencies
 RUN mkdir -p /usr/src/feeder
 WORKDIR /usr/src/feeder

@@ -16,7 +16,7 @@ def test_request_feed_exceptions():
 
 
 def test_request_feed_return_value():
-    feed_url = "http://www.nu.nl/rss/Algemeen"
+    feed_url = "http://joeroganexp.joerogan.libsynpro.com/rss"
     response = request_feed(feed_url=feed_url)
     assert isinstance(response, FeedParserDict)
     assert not response.bozo

@@ -101,7 +101,6 @@ class FeedFilter(django_filters.FilterSet):
             Q(user=self.request.user) | Q(followers__user=self.request.user),
             is_active=True,
         ).select_related("user")
-        # .distinct() TODO: REMEMBER
 
 
 class FeedQuery:
