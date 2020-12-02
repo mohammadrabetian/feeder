@@ -66,6 +66,7 @@ mutation DeleteFeed {
 ```
 #### Query Feeds
 * Supports filters
+* orders by feed lastUpdated
 * Supports pagination
 ```graphql
 query Feeds {
@@ -90,6 +91,7 @@ query Feeds {
 ```
 #### Query Feed Items
 * Supports filters
+* orders by feed lastUpdated
 * Supports pagination
 ```graphql
 query FeedItems {
@@ -107,6 +109,24 @@ query FeedItems {
         }
       }
     }
+  }
+}
+```
+
+#### Read an Item
+```graphql
+mutation ReadItem {
+  readFeedItem(uuid: "8a716c4e-7558-4628-8c48-38ac9ee7b23f") {
+    success
+  }
+}
+```
+
+#### Unread an Item
+```graphql
+mutation UnReadItem {
+  unreadFeedItem(uuid: "8a716c4e-7558-4628-8c48-38ac9ee7b23f") {
+    success
   }
 }
 ```
