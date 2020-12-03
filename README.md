@@ -9,13 +9,14 @@ You need to have [docker](https://docs.docker.com/install/) & [docker-compose](h
 
 ### Secrets
 
+Create a .env file inside config folder using .env.example as a template.
 You need to create a secret key for Django and put it inside .env file. See config/.env.example
 
 You can create one using django-extensions generate_secret_key command,
 or you can create one [here](https://djecrety.ir/)
 
 The other secrets like database passwords and etc have a default value just for the sake of simplicity for this project, 
-but in case of using this project you should consider doing as above. See config/.env.example
+but in case of using this project in production, you should consider doing as above. See config/.env.example
 
 ### Running
 
